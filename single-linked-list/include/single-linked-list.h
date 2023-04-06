@@ -188,9 +188,7 @@ public:
     void Clear() noexcept {
         while (head_.next_node != nullptr)
         {
-            auto tmp = head_.next_node->next_node;
-            delete head_.next_node;
-            head_.next_node = tmp;
+            delete std::exchange(head_.next_node, head_.next_node->next_node);
         }
         size_ = 0u;
     }
@@ -216,14 +214,8 @@ public:
 
     // Обменивает содержимое списков за время O(1)
     void swap(SingleLinkedList& other) noexcept {
-        auto tmp_h_nd = head_.next_node;
-        size_t tmp_size = size_;
-
-        head_.next_node = other.head_.next_node;
-        size_ = other.size_;
-        
-        other.head_.next_node = tmp_h_nd;
-        other.size_ = tmp_size;
+        std::swap(head_.next_node, other.head_.next_node);
+        std::swap(size_, other.size_);
     }
      
     // Возвращает итератор, указывающий на позицию перед первым элементом односвязного списка.
@@ -257,9 +249,8 @@ public:
     }
 
     void PopFront() noexcept {
-        Node* tmp = head_.next_node->next_node;
-        delete head_.next_node;
-        head_.next_node = tmp;
+        delete std::exchange(head_.next_node, head_.next_node->next_node);
+        --size_;
     }
 
     /*
@@ -267,9 +258,8 @@ public:
      * Возвращает итератор на элемент, следующий за удалённым
      */
     Iterator EraseAfter(ConstIterator pos) noexcept {
-        Node* tmp = pos.node_->next_node->next_node;
-        delete pos.node_->next_node;
-        pos.node_->next_node = tmp;
+        delete std::exchange(pos.node_->next_node, pos.node_->next_node->next_node);
+        --size_;
         return BasicIterator<Type>(pos.node_->next_node);
     }
     
@@ -287,61 +277,58 @@ private:
             return;
         }
 
-        Node* first = new Node(*it_begin, head_.next_node);
-        Node* curr = first;
-        ++it_begin;
-        
+        SingleLinkedList<Type> list;
+        auto curr = list.before_begin();
         while(it_begin != it_end)
         {
-            Node* tmp = new Node(*it_begin, curr->next_node);
-            curr->next_node = tmp;
-            curr = tmp;
+            list.InsertAfter(curr, *it_begin);
             ++it_begin;
+            ++curr;
         }
-        size_ = size;
-        head_.next_node = first;
+
+        std::swap(head_.next_node, list.head_.next_node);
+        std::swap(size_, size);
     }
 
 };
 
 template <typename Type>
 void swap(SingleLinkedList<Type>& lhs, SingleLinkedList<Type>& rhs) noexcept {
-    // Реализуйте обмен самостоятельно
     lhs.swap(rhs);
 }
 
 template <typename Type>
 bool operator==(const SingleLinkedList<Type>& lhs, const SingleLinkedList<Type>& rhs) {
-    // Заглушка. Реализуйте сравнение самостоятельно
-    return std::equal(lhs.begin(), lhs.end(), rhs.begin());
+    
+    if (lhs.GetSize() == rhs.GetSize())
+    {
+        return std::equal(lhs.begin(), lhs.end(), rhs.begin());
+    }
+    
+    return false;
 }
 
 template <typename Type>
 bool operator!=(const SingleLinkedList<Type>& lhs, const SingleLinkedList<Type>& rhs) {
-    // Заглушка. Реализуйте сравнение самостоятельно
     return !(lhs == rhs);
 }
 
 template <typename Type>
 bool operator<(const SingleLinkedList<Type>& lhs, const SingleLinkedList<Type>& rhs) {
-    // Заглушка. Реализуйте сравнение самостоятельно
     return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
 }
 
 template <typename Type>
 bool operator<=(const SingleLinkedList<Type>& lhs, const SingleLinkedList<Type>& rhs) {
-    // Заглушка. Реализуйте сравнение самостоятельно
     return !(rhs < lhs);
 }
 
 template <typename Type>
 bool operator>(const SingleLinkedList<Type>& lhs, const SingleLinkedList<Type>& rhs) {
-    // Заглушка. Реализуйте сравнение самостоятельно
     return !(lhs <= rhs);
 }
 
 template <typename Type>
 bool operator>=(const SingleLinkedList<Type>& lhs, const SingleLinkedList<Type>& rhs) {
-    // Заглушка. Реализуйте сравнение самостоятельно
     return !(lhs < rhs);
 } 
