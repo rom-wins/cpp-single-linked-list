@@ -1,0 +1,3 @@
+/home/romwins/code/yandex_prac/git_projects/cpp-single-linked-list/single-linked-list/build/CMakeFiles/main.dir
+/home/romwins/code/yandex_prac/git_projects/cpp-single-linked-list/single-linked-list/build/CMakeFiles/edit_cache.dir
+/home/romwins/code/yandex_prac/git_projects/cpp-single-linked-list/single-linked-list/build/CMakeFiles/rebuild_cache.dir
